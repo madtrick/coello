@@ -1,6 +1,6 @@
 {application, coello,
  [
-  {description, ""},
+  {description, "A thin wrapper over RabbitMQ libraries"},
   {vsn, "1"},
   {registered, []},
   {applications, [
