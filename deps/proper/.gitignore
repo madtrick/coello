@@ -1,0 +1,13 @@
+*~
+\#*\#
+*.dump
+*.tar.gz
+*.beam
+*.app
+doc/*.html
+doc/*.css
+doc/*.png
+doc/edoc-info
+include/compile_flags.hrl
+.directory
+.eunit
