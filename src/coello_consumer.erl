@@ -25,8 +25,8 @@ handle_call(_, _, State) ->
 handle_cast(_, State) ->
   {noreply, State}.
 
-handle_info({#'basic.deliver'{}, #amqp_msg{}}, State) ->
-  (State#state.on_message)(22),
+handle_info({#'basic.deliver'{}, #amqp_msg{ payload = Payload}}, State) ->
+  (State#state.on_message)(Payload),
   {noreply, State}.
 
 terminate(_, _) ->

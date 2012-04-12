@@ -19,5 +19,19 @@ spec() ->
             Consumer ! Message,
 
             receive on_message -> ok end
-      end)
+      end),
+      it("should invoke the callback with the payload of the received message", fun() ->
+            AmqpMsg = #amqp_msg{payload = "abc"},
+            Method  = #'basic.deliver'{},
+            Message = {Method, AmqpMsg},
+            Pid     = self(),
+            Consumer = coello_consumer:start(fun(Msg) -> Pid ! {on_message, Msg} end ),
+            Consumer ! Message,
+
+            assert_that(
+              receive {on_message, "abc"} -> true
+              after 500 -> false
+              end,
+              is(true))
+        end)
   end).
