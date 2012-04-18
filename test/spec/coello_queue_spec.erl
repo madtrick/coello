@@ -25,22 +25,35 @@ spec() ->
 
               assert_that(meck:called(amqp_channel, call, [Channel, Params]), is(true)),
               assert_that(QueueName, is(<<"abc">>))
-        end)
-  end),
-describe("bind/4", fun() ->
-      it("should bind the queue with the passed in routing key", fun()->
-            meck:sequence(amqp_channel, call, 2,
-              [#'queue.declare_ok'{}, #'queue.bind_ok'{}]),
+          end)
+    end),
+  describe("bind/4", fun() ->
+        it("should bind the queue with the passed in routing key", fun()->
+              meck:sequence(amqp_channel, call, 2,
+                [#'queue.declare_ok'{}, #'queue.bind_ok'{}]),
 
-            Connection      = coello_connection:start(),
-            Channel         = coello_channel:open(Connection),
-            {ok, QueueName} = coello_queue:declare(Channel),
+              Connection      = coello_connection:start(),
+              Channel         = coello_channel:open(Connection),
+              {ok, QueueName} = coello_queue:declare(Channel),
 
-            Exchange   = <<"exchange-A">>,
-            RoutingKey = <<"pandecea">>,
-            Params     = #'queue.bind'{queue = QueueName, exchange = Exchange, routing_key = RoutingKey },
-            coello_queue:bind(Channel, QueueName, RoutingKey, Exchange),
+              Exchange   = <<"exchange-A">>,
+              RoutingKey = <<"pandecea">>,
+              Params     = #'queue.bind'{queue = QueueName, exchange = Exchange, routing_key = RoutingKey },
+              coello_queue:bind(Channel, QueueName, RoutingKey, Exchange),
 
-            assert_that(meck:called(amqp_channel, call, [Channel, Params]), is(true))
+              assert_that(meck:called(amqp_channel, call, [Channel, Params]), is(true))
+          end)
+    end),
+  describe("delete/2", fun() ->
+        it("should delete the queue unconditionally", fun()->
+              meck:expect(amqp_channel, call, 2, #'queue.delete_ok'{}),
+
+              QueueName = <<"acola">>,
+              Method = #'queue.delete'{ queue = QueueName},
+              Connection = coello_connection:start(),
+              Channel = coello_channel:open(Connection),
+              coello_queue:delete(Channel, QueueName),
+
+              assert_that(meck:called(amqp_channel, call, [Channel, Method]), is(true))
         end)
   end).

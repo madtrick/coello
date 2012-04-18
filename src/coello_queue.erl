@@ -1,7 +1,7 @@
 -module(coello_queue).
 -include_lib("amqp_client/include/amqp_client.hrl").
 
--export([declare/1, bind/4]).
+-export([declare/1, bind/4, delete/2]).
 
 -spec declare(Channel::pid()) -> {ok, QueueName::binary()} | blocked | closing.
 declare(Channel)->
@@ -22,6 +22,17 @@ bind(Channel, QueueName, RoutingKey, Exchange) ->
   case amqp_channel:call(Channel, Method) of
     #'queue.bind_ok'{} ->
       ok;
+    Other ->
+      Other
+  end.
+
+-spec delete(Channel::pid(), QueueName::pid()) -> {ok, MsgCount::integer} | blocked | closing.
+delete(Channel, QueueName) ->
+  Method = #'queue.delete'{ queue = QueueName},
+
+  case amqp_channel:call(Channel, Method) of
+    #'queue.delete_ok'{ message_count = Count } ->
+      {ok, Count};
     Other ->
       Other
   end.
