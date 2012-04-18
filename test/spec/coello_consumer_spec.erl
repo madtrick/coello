@@ -36,29 +36,27 @@ spec() ->
           is(true))
     end),
   describe("stop/1", fun() ->
-        it("should stop the consumer", fun() ->
+        before_all(fun() ->
               meck:new(amqp_channel),
-              meck:expect(amqp_channel, call, 1, ok),
-
+              meck:expect(amqp_channel, call, 1, ok)
+          end),
+        after_all(fun() ->
+              meck:unload(amqp_channel)
+            end),
+        it("should stop the consumer", fun() ->
               Consumer = coello_consumer:start(fun() -> undefined end),
 
               coello_consumer:stop(Consumer),
 
-              assert_that(Consumer, isdead()),
-
-              meck:unload(amqp_channel)
+              assert_that(Consumer, isdead())
           end),
         it("should cancel the amqp consumer", fun() ->
-              meck:new(amqp_channel),
-              meck:expect(amqp_channel, call, 1, ok),
-
               Method = #'basic.cancel'{ consumer_tag = consumer_tag_value},
               Consumer = coello_consumer:start(fun() -> undefined end),
 
               Consumer ! #'basic.consume_ok'{consumer_tag = consumer_tag_value},
               coello_consumer:stop(Consumer),
 
-              assert_that(meck:called(amqp_channel, call, [Method]), is(true)),
-              meck:unload(amqp_channel)
+              assert_that(meck:called(amqp_channel, call, [Method]), is(true))
           end)
   end).

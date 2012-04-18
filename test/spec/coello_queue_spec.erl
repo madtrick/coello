@@ -19,11 +19,9 @@ spec() ->
               meck:expect(amqp_channel, call, 2, #'queue.declare_ok'{ queue = <<"abc">>}),
 
               Params = #'queue.declare'{exclusive = true},
-              Connection      = coello_connection:start(),
-              Channel         = coello_channel:open(Connection),
-              {ok, QueueName} = coello_queue:declare(Channel),
+              {ok, QueueName} = coello_queue:declare(channel),
 
-              assert_that(meck:called(amqp_channel, call, [Channel, Params]), is(true)),
+              assert_that(meck:called(amqp_channel, call, [channel, Params]), is(true)),
               assert_that(QueueName, is(<<"abc">>))
           end)
     end),
@@ -32,16 +30,13 @@ spec() ->
               meck:sequence(amqp_channel, call, 2,
                 [#'queue.declare_ok'{}, #'queue.bind_ok'{}]),
 
-              Connection      = coello_connection:start(),
-              Channel         = coello_channel:open(Connection),
-              {ok, QueueName} = coello_queue:declare(Channel),
-
               Exchange   = <<"exchange-A">>,
               RoutingKey = <<"pandecea">>,
+              QueueName  = <<"cocacola">>,
               Params     = #'queue.bind'{queue = QueueName, exchange = Exchange, routing_key = RoutingKey },
-              coello_queue:bind(Channel, QueueName, RoutingKey, Exchange),
+              coello_queue:bind(channel, QueueName, RoutingKey, Exchange),
 
-              assert_that(meck:called(amqp_channel, call, [Channel, Params]), is(true))
+              assert_that(meck:called(amqp_channel, call, [channel, Params]), is(true))
           end)
     end),
   describe("delete/2", fun() ->
@@ -50,10 +45,8 @@ spec() ->
 
               QueueName = <<"acola">>,
               Method = #'queue.delete'{ queue = QueueName},
-              Connection = coello_connection:start(),
-              Channel = coello_channel:open(Connection),
-              coello_queue:delete(Channel, QueueName),
+              coello_queue:delete(channel, QueueName),
 
-              assert_that(meck:called(amqp_channel, call, [Channel, Method]), is(true))
+              assert_that(meck:called(amqp_channel, call, [channel, Method]), is(true))
         end)
   end).

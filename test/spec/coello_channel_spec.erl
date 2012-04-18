@@ -6,7 +6,6 @@
 spec() ->
   before_all(fun() ->
         meck:new([amqp_connection, amqp_channel]),
-        meck:expect(amqp_connection, start, 1, pid),
         meck:expect(amqp_connection, open_channel, 1, {ok, channel})
     end),
   after_all(fun() ->
@@ -14,20 +13,17 @@ spec() ->
     end),
   describe("open", fun() ->
         it("should open a channel on the passed connection", fun() ->
-              Connection = coello_connection:start(),
-              coello_channel:open(Connection),
+              coello_channel:open(connection),
 
-              assert_that(meck:called(amqp_connection, open_channel, [Connection]), is(true))
+              assert_that(meck:called(amqp_connection, open_channel, [connection]), is(true))
           end)
     end),
   describe("close", fun() ->
         it("should close a channel on the passed connection", fun() ->
               meck:expect(amqp_channel, close, 1, ok),
 
-              Connection = coello_connection:start(),
-              Channel = coello_channel:open(Connection),
-              coello_channel:close(Channel),
+              coello_channel:close(channel),
 
-              assert_that(meck:called(amqp_channel, close, [Channel]), is(true))
+              assert_that(meck:called(amqp_channel, close, [channel]), is(true))
           end)
   end).

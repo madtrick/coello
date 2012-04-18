@@ -23,9 +23,8 @@ spec() ->
   describe("close/1", fun() ->
         it("should close the connection", fun()->
               meck:expect(amqp_connection, close, 1, ok),
-              Connection = coello_connection:start(),
-              coello_connection:close(Connection),
+              coello_connection:close(connection),
 
-              assert_that(meck:called(amqp_connection, close, [Connection]), is(true))
+              assert_that(meck:called(amqp_connection, close, [connection]), is(true))
         end)
   end).

@@ -5,13 +5,11 @@
 
 spec() ->
   before_all(fun() ->
-        meck:new([amqp_connection, amqp_channel]),
-        meck:expect(amqp_connection, start, 1, connection),
-        meck:expect(amqp_connection, open_channel, 1, {ok, channel}),
+        meck:new([amqp_channel]),
         meck:expect(amqp_channel, cast, 3, ok)
     end),
   after_all(fun() ->
-        meck:unload([amqp_connection, amqp_channel])
+        meck:unload([amqp_channel])
     end),
   describe("publish/4", fun() ->
         it("should publish a binary message", fun()->
@@ -20,22 +18,18 @@ spec() ->
               Data = crypto:rand_bytes(30),
               Msg       = #amqp_msg{payload = Data },
               Method     = #'basic.publish'{ exchange = Exchange, routing_key = RoutingKey},
-              Connection = coello_connection:start(),
-              Channel    = coello_channel:open(Connection),
-              ok         = coello_basic:publish(Channel, Data, Exchange,RoutingKey),
+              ok         = coello_basic:publish(channel, Data, Exchange,RoutingKey),
 
-              assert_that(meck:called(amqp_channel, cast, [Channel, Method, Msg]), is(true))
+              assert_that(meck:called(amqp_channel, cast, [channel, Method, Msg]), is(true))
           end),
         it("should publish a text message", fun()->
               Exchange   = <<"unexchangedocarallo">>,
               RoutingKey = <<"tienrutaporahi">>,
               Msg       = #amqp_msg{payload = <<"abc">> },
               Method     = #'basic.publish'{ exchange = Exchange, routing_key = RoutingKey},
-              Connection = coello_connection:start(),
-              Channel    = coello_channel:open(Connection),
-              ok         = coello_basic:publish(Channel, "abc", Exchange,RoutingKey),
+              ok         = coello_basic:publish(channel, "abc", Exchange,RoutingKey),
 
-              assert_that(meck:called(amqp_channel, cast, [Channel, Method, Msg]), is(true))
+              assert_that(meck:called(amqp_channel, cast, [channel, Method, Msg]), is(true))
           end)
     end),
   describe("consume", fun() ->
@@ -44,10 +38,8 @@ spec() ->
 
               QueueName = <<"queue">>,
               Method = #'basic.consume'{ queue = QueueName},
-              Connection = coello_connection:start(),
-              Channel    = coello_channel:open(Connection),
               Pid        = self(),
-              Consumer = coello_basic:consume(Channel, QueueName, fun(_) -> Pid ! on_message end),
+              Consumer = coello_basic:consume(channel, QueueName, fun(_) -> Pid ! on_message end),
               Consumer ! {#'basic.deliver'{}, #amqp_msg{}},
 
               assert_that(
@@ -57,7 +49,7 @@ spec() ->
                 after 500 ->
                     false
                 end, is(true)),
-              assert_that(meck:called(amqp_channel, subscribe, [Channel, Method, Consumer]), is(true))
+              assert_that(meck:called(amqp_channel, subscribe, [channel, Method, Consumer]), is(true))
           end)
     end),
   describe("cancel", fun() ->
