@@ -13,10 +13,11 @@ publish(Channel, Data, Exchange, RoutingKey, ReplyTo) when is_list(Data)->
 
 -spec publish(Channel::pid(), Data::binary() | list(), Exchange::bitstring(), RoutingKey::bitstring()) ->ok.
 publish(Channel, Data, Exchange, RoutingKey) when is_binary(Data) ->
-  publish_msg(Channel, #amqp_msg{payload = Data}, Exchange, RoutingKey);
+  Msg = build_amqp_msg([{payload, Data}]),
+  publish_msg(Channel, Msg, Exchange, RoutingKey);
 
 publish(Channel, Data, Exchange, RoutingKey) when is_list(Data) ->
-  publish_msg(Channel, #amqp_msg{payload = list_to_binary(Data)}, Exchange, RoutingKey).
+  publish(Channel, list_to_binary(Data), Exchange, RoutingKey).
 
 -spec consume(Channel::pid(), QueueName::bitstring(), Callback::fun()) -> pid().
 consume(Channel, QueueName, Callback) ->

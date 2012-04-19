@@ -13,45 +13,37 @@ spec() ->
     end),
   describe("publish/4", fun() ->
         it("should publish a binary message", fun()->
-              Exchange   = <<"unexchangedocarallo">>,
-              RoutingKey = <<"tienrutaporahi">>,
               Data = crypto:rand_bytes(30),
               Msg       = #amqp_msg{payload = Data },
-              Method     = #'basic.publish'{ exchange = Exchange, routing_key = RoutingKey},
-              ok         = coello_basic:publish(channel, Data, Exchange,RoutingKey),
+              Method     = #'basic.publish'{ exchange = exchange, routing_key = routing_key},
+              ok         = coello_basic:publish(channel, Data, exchange,routing_key),
 
               assert_that(meck:called(amqp_channel, cast, [channel, Method, Msg]), is(true))
           end),
         it("should publish a text message", fun()->
-              Exchange   = <<"unexchangedocarallo">>,
-              RoutingKey = <<"tienrutaporahi">>,
               Msg       = #amqp_msg{payload = <<"abc">> },
-              Method     = #'basic.publish'{ exchange = Exchange, routing_key = RoutingKey},
-              ok         = coello_basic:publish(channel, "abc", Exchange,RoutingKey),
+              Method     = #'basic.publish'{ exchange = exchange, routing_key =  routing_key},
+              ok         = coello_basic:publish(channel, "abc", exchange, routing_key),
 
               assert_that(meck:called(amqp_channel, cast, [channel, Method, Msg]), is(true))
           end)
     end),
   describe("publish/5", fun() ->
     it("should publish a binary message", fun()->
-              Exchange   = <<"unexchangedocarallo">>,
-              RoutingKey = <<"tienrutaporahi">>,
               ReplyTo = <<"respondemeaqui">>,
               Data = crypto:rand_bytes(30),
               Msg       = #amqp_msg{payload = Data, props = #'P_basic'{reply_to = ReplyTo} },
-              Method     = #'basic.publish'{ exchange = Exchange, routing_key = RoutingKey},
-              ok         = coello_basic:publish(channel, Data, Exchange, RoutingKey, ReplyTo),
+              Method     = #'basic.publish'{ exchange = exchange, routing_key = routing_key},
+              ok         = coello_basic:publish(channel, Data, exchange, routing_key, ReplyTo),
 
               assert_that(meck:called(amqp_channel, cast, [channel, Method, Msg]), is(true))
     end),
   it("should publish a text message", fun() ->
-              Exchange   = <<"unexchangedocarallo">>,
-              RoutingKey = <<"tienrutaporahi">>,
-              ReplyTo = <<"respondemeaqui">>,
               Data = "abc",
+              ReplyTo = <<"respondeaqui">>,
               Msg       = #amqp_msg{payload = <<"abc">>, props = #'P_basic'{reply_to = ReplyTo} },
-              Method     = #'basic.publish'{ exchange = Exchange, routing_key = RoutingKey},
-              ok         = coello_basic:publish(channel, Data, Exchange, RoutingKey, ReplyTo),
+              Method     = #'basic.publish'{ exchange = exchange, routing_key = routing_key},
+              ok         = coello_basic:publish(channel, Data, exchange, routing_key, ReplyTo),
 
               assert_that(meck:called(amqp_channel, cast, [channel, Method, Msg]), is(true))
     end)
