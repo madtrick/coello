@@ -32,6 +32,30 @@ spec() ->
               assert_that(meck:called(amqp_channel, cast, [channel, Method, Msg]), is(true))
           end)
     end),
+  describe("publish/5", fun() ->
+    it("should publish a binary message", fun()->
+              Exchange   = <<"unexchangedocarallo">>,
+              RoutingKey = <<"tienrutaporahi">>,
+              ReplyTo = <<"respondemeaqui">>,
+              Data = crypto:rand_bytes(30),
+              Msg       = #amqp_msg{payload = Data, props = #'P_basic'{reply_to = ReplyTo} },
+              Method     = #'basic.publish'{ exchange = Exchange, routing_key = RoutingKey},
+              ok         = coello_basic:publish(channel, Data, Exchange, RoutingKey, ReplyTo),
+
+              assert_that(meck:called(amqp_channel, cast, [channel, Method, Msg]), is(true))
+    end),
+  it("should publish a text message", fun() ->
+              Exchange   = <<"unexchangedocarallo">>,
+              RoutingKey = <<"tienrutaporahi">>,
+              ReplyTo = <<"respondemeaqui">>,
+              Data = "abc",
+              Msg       = #amqp_msg{payload = <<"abc">>, props = #'P_basic'{reply_to = ReplyTo} },
+              Method     = #'basic.publish'{ exchange = Exchange, routing_key = RoutingKey},
+              ok         = coello_basic:publish(channel, Data, Exchange, RoutingKey, ReplyTo),
+
+              assert_that(meck:called(amqp_channel, cast, [channel, Method, Msg]), is(true))
+    end)
+  end),
   describe("consume", fun() ->
         it("should consume messages and invoke the passed in callback", fun()->
               meck:expect(amqp_channel, subscribe, 3, ok),
