@@ -1,4 +1,3 @@
-
 -module(coello_sup).
 
 -behaviour(supervisor).
