@@ -13,8 +13,12 @@ This project is still a __work in progress__ and it's on beta state.
 
 ### AMQP conformance <a name="conformance"> ###
 
-Currently the supported AMQP classes and their respective methods are:
+Currently the supported AMQP (version 0.9.1) classes and their respective methods are:
 
+* Class connection
+  * start
+      * `coello_connection:start/0`, opens a connection using the default parameters.
+      * `coello_connection:close/1`, closes a connection.
 * Class basic
   * publish
       * `coello_basic:publish/4`, publish a message.
