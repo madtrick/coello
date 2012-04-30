@@ -25,6 +25,18 @@ spec() ->
               assert_that(QueueName, is(<<"abc">>))
           end)
     end),
+  describe("declare/2", fun() ->
+        it("should create a exclusive queue named with the given name", fun() ->
+              QueueName = <<"queuequeue">>,
+              meck:expect(amqp_channel, call, 2, #'queue.declare_ok'{ queue = QueueName}),
+
+              Params = #'queue.declare'{exclusive = true, queue = QueueName },
+              {ok, CreatedQueue} = coello_queue:declare(channel, QueueName),
+
+              assert_that(meck:called(amqp_channel, call, [channel, Params]), is(true)),
+              assert_that(CreatedQueue, is(QueueName))
+          end)
+  end),
   describe("bind/4", fun() ->
         it("should bind the queue with the passed in routing key", fun()->
               meck:sequence(amqp_channel, call, 2,

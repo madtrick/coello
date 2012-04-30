@@ -14,14 +14,28 @@
 -module(coello_queue).
 -include_lib("amqp_client/include/amqp_client.hrl").
 
--export([declare/1, bind/4, delete/2]).
+-export([declare/1, declare/2, bind/4, delete/2]).
+
+-define(EMPTY_QUEUE_NAME, <<"">>).
 
 -spec declare(Channel::pid()) -> {ok, QueueName::binary()} | blocked | closing.
 declare(Channel)->
-  Method = #'queue.declare'{exclusive = true},
+  declare(Channel, ?EMPTY_QUEUE_NAME).
+  %Method = #'queue.declare'{exclusive = true},
+
+  %case amqp_channel:call(Channel, Method) of
+  %  #'queue.declare_ok'{queue = Queue} ->
+  %    {ok, Queue};
+  %  Other ->
+  %    Other
+  %end.
+
+-spec declare(Channel::pid(), QueueName :: bitstring()) -> {ok, QueueName::binary()} | blocked | closing.
+declare(Channel, QueueName)->
+  Method = #'queue.declare'{exclusive = true, queue = QueueName},
 
   case amqp_channel:call(Channel, Method) of
-    #'queue.declare_ok'{queue = Queue} ->
+    #'queue.declare_ok'{ queue = Queue} ->
       {ok, Queue};
     Other ->
       Other
