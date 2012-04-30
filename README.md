@@ -34,6 +34,7 @@ Currently the supported AMQP classes and their respective methods are:
 * Class queue
   * declare
       * `coello_queue:declare/1`, declares an exclusive, non-durable queue.
+      * `coello_queue:declare/2`, declares an exclusive, non-durable queue, with a chosen name.
   * bind
       * `coello_queue:bind/4`, binds a queue.
   * delete
