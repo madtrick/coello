@@ -46,7 +46,7 @@ handle_call(_, _, State) ->
 handle_cast(_, State) ->
   {noreply, State}.
 
-handle_info(_ = #'basic.cancel'{}, State) ->
+handle_info(_ = #'basic.cancel_ok'{}, State) ->
   {noreply, State};
 
 handle_info(#'basic.consume_ok'{ consumer_tag = Tag}, State) ->
