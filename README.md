@@ -26,7 +26,7 @@ Currently the supported AMQP (version 0.9.1) classes and their respective method
   * consume
       * `coello_basic:consume/3`, consume messages. It starts a consumer process that'll invoke a callback on each new message.
   * cancel
-      * `coello_basic:cancel/1`, cancels a consumer.
+      * `coello_basic:cancel/2`, cancels a consumer.
 * Class channel
   * open
       * `coello_channel:open/1`, opens a channel.
