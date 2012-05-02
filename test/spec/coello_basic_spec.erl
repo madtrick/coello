@@ -50,13 +50,13 @@ spec() ->
   end),
   describe("consume", fun() ->
         it("should consume messages and invoke the passed in callback", fun()->
-              meck:expect(amqp_channel, subscribe, 3, ok),
+              meck:expect(amqp_channel, subscribe, 3, #'basic.consume_ok'{consumer_tag = 1234}),
 
               QueueName = <<"queue">>,
               Method = #'basic.consume'{ queue = QueueName},
               Pid        = self(),
-              Consumer = coello_basic:consume(channel, QueueName, fun(_) -> Pid ! on_message end),
-              Consumer ! {#'basic.deliver'{}, #amqp_msg{}},
+              {ConsumerPid, _} = coello_basic:consume(channel, QueueName, fun(_) -> Pid ! on_message end),
+              ConsumerPid ! {#'basic.deliver'{}, #amqp_msg{}},
 
               assert_that(
                 receive
@@ -65,16 +65,20 @@ spec() ->
                 after 500 ->
                     false
                 end, is(true)),
-              assert_that(meck:called(amqp_channel, subscribe, [channel, Method, Consumer]), is(true))
+              assert_that(meck:called(amqp_channel, subscribe, [channel, Method, ConsumerPid]), is(true))
           end)
     end),
   describe("cancel", fun() ->
         it("should cancel a consumer", fun() ->
               meck:new(coello_consumer),
+              meck:expect(amqp_channel, call, 2, ok),
               meck:expect(coello_consumer, stop, 1, ok),
 
-              ok = coello_basic:cancel(consumer),
+              Method = #'basic.cancel'{consumer_tag = consumer_tag},
 
+              ok = coello_basic:cancel(channel, {consumer, consumer_tag}),
+
+              assert_that(meck:called(amqp_channel, call, [channel, Method]), is(true)),
               assert_that(meck:called(coello_consumer, stop, [consumer]), is(true)),
 
               meck:unload(coello_consumer)

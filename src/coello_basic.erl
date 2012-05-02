@@ -14,7 +14,7 @@
 -module(coello_basic).
 -include_lib("amqp_client/include/amqp_client.hrl").
 
--export([publish/4, publish/5, consume/3, cancel/1]).
+-export([publish/4, publish/5, consume/3, cancel/2]).
 
 -spec publish(Channel::pid(), Data::binary() | list(), Exchange::bitstring(), RoutingKey::bitstring(), ReplyTo::bitstring()) -> ok.
 publish(Channel, Data, Exchange, RoutingKey, ReplyTo) when is_binary(Data)->
@@ -37,11 +37,13 @@ consume(Channel, QueueName, Callback) ->
   Consumer = coello_consumer:start(Callback),
 
   Method = #'basic.consume'{ queue = QueueName },
-  ok = amqp_channel:subscribe(Channel, Method, Consumer),
-  Consumer.
+  Response = amqp_channel:subscribe(Channel, Method, Consumer),
+  {Consumer, Response#'basic.consume_ok'.consumer_tag}.
 
--spec cancel(Consumer::pid()) -> ok.
-cancel(Consumer) ->
+-spec cancel(Channel::pid(), {Consumer::pid(), ConsumerTag::bitstring()}) -> ok.
+cancel(Channel, {Consumer, ConsumerTag}) ->
+  Method = #'basic.cancel'{consumer_tag = ConsumerTag},
+  amqp_channel:call(Channel, Method),
   coello_consumer:stop(Consumer).
 
 %==================
