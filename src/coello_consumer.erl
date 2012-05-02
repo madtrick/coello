@@ -46,6 +46,9 @@ handle_call(_, _, State) ->
 handle_cast(_, State) ->
   {noreply, State}.
 
+handle_info(#'basic.cancel', State) ->
+  {noreply, State};
+
 handle_info(#'basic.consume_ok'{ consumer_tag = Tag}, State) ->
  {noreply, State#state{consumer_tag = Tag}};
 
@@ -54,7 +57,6 @@ handle_info({#'basic.deliver'{}, #amqp_msg{ payload = Payload}}, State) ->
   {noreply, State}.
 
 terminate(_, State) ->
-  amqp_channel:call(#'basic.cancel'{consumer_tag = State#state.consumer_tag}).
-
+  ok.
 code_change(_, State, _) ->
   {ok, State}.

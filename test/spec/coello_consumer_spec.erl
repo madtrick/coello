@@ -49,14 +49,5 @@ spec() ->
               coello_consumer:stop(Consumer),
 
               assert_that(Consumer, isdead())
-          end),
-        it("should cancel the amqp consumer", fun() ->
-              Method = #'basic.cancel'{ consumer_tag = consumer_tag_value},
-              Consumer = coello_consumer:start(fun() -> undefined end),
-
-              Consumer ! #'basic.consume_ok'{consumer_tag = consumer_tag_value},
-              coello_consumer:stop(Consumer),
-
-              assert_that(meck:called(amqp_channel, call, [Method]), is(true))
           end)
   end).
