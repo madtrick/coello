@@ -21,7 +21,8 @@
 
 -record(state,{
     on_message :: fun(),
-      consumer_tag
+    consumer_tag,
+    callback_arity :: integer()
   }).
 
 -spec start(Callback::fun()) -> pid().
@@ -35,7 +36,8 @@ stop(Consumer) ->
 
 -spec init(Args::list()) -> {ok, #state{}}.
 init([Callback]) ->
-  {ok, #state{ on_message = Callback}}.
+  Arity = proplists:get_value(arity, erlang:fun_info(Callback)),
+  {ok, #state{ on_message = Callback, callback_arity = Arity}}.
 
 handle_call(stop, _From, State) ->
   {stop, normal, ok, State};
@@ -52,11 +54,16 @@ handle_info(_ = #'basic.cancel_ok'{}, State) ->
 handle_info(#'basic.consume_ok'{ consumer_tag = Tag}, State) ->
  {noreply, State#state{consumer_tag = Tag}};
 
-handle_info({#'basic.deliver'{}, #amqp_msg{ payload = Payload}}, State) ->
-  (State#state.on_message)(Payload),
+handle_info({#'basic.deliver'{}, #amqp_msg{ payload = Payload, props = Props}}, State) ->
+  case State#state.callback_arity of
+    1 ->
+      (State#state.on_message)(Payload);
+    2 ->
+      (State#state.on_message)(Payload, Props#'P_basic'.reply_to)
+  end,
   {noreply, State}.
 
-terminate(_, State) ->
+terminate(_, _State) ->
   ok.
 code_change(_, State, _) ->
   {ok, State}.

@@ -35,6 +35,20 @@ spec() ->
           end,
           is(true))
     end),
+  it("should pass the reply queue as second param if the callback has arity 2", fun() ->
+        AmqpMsg = #amqp_msg{payload = "abc", props = #'P_basic'{reply_to = <<"replyqueue">>}},
+        Method  = #'basic.deliver'{},
+        Message = {Method, AmqpMsg},
+        Pid     = self(),
+        Consumer = coello_consumer:start(fun(Msg, ReplyQueue) -> Pid ! {on_message, Msg, ReplyQueue} end ),
+        Consumer ! Message,
+
+        assert_that(
+          receive {on_message, "abc", <<"replyqueue">>} -> true
+          after 500 -> false
+          end,
+          is(true))
+    end),
   describe("stop/1", fun() ->
         before_all(fun() ->
               meck:new(amqp_channel),
