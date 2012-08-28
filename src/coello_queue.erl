@@ -32,7 +32,7 @@ declare(Channel)->
 
 -spec declare(Channel::pid(), QueueName :: bitstring()) -> {ok, QueueName::binary()} | blocked | closing.
 declare(Channel, QueueName)->
-  Method = #'queue.declare'{exclusive = true, queue = QueueName},
+  Method = #'queue.declare'{exclusive = false, queue = QueueName},
 
   case amqp_channel:call(Channel, Method) of
     #'queue.declare_ok'{ queue = Queue} ->
