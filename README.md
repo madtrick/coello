@@ -18,6 +18,7 @@ Currently the supported AMQP (version 0.9.1) classes and their respective method
 * Class connection
   * start
       * `coello_connection:start/0`, opens a connection using the default parameters.
+      * `coello_connection:start/1`, allows to configure the connection.
       * `coello_connection:close/1`, closes a connection.
 * Class basic
   * publish
