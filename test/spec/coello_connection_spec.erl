@@ -20,6 +20,16 @@ spec() ->
               assert_that(meck:called(amqp_connection, start, [AmqpParams]), is(true))
           end)
     end),
+  describe("start/1", fun() ->
+        it("should configure connection with given parameters", fun() ->
+              Options = [{host, "example"}, {port, 123}],
+              AmqpParams = #amqp_params_network{ host = "example", port = 123},
+
+              coello_connection:start(Options),
+
+              assert_that(meck:called(amqp_connection, start, [AmqpParams]), is(true))
+          end)
+    end),
   describe("close/1", fun() ->
         it("should close the connection", fun()->
               meck:expect(amqp_connection, close, 1, ok),
