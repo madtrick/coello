@@ -55,7 +55,7 @@ handle_info(#'basic.consume_ok'{ consumer_tag = Tag}, State) ->
  {noreply, State#state{consumer_tag = Tag}};
 
 handle_info({#'basic.deliver'{}, #amqp_msg{ payload = Payload, props = Props}}, State) ->
-  (State#state.on_message)(Payload, Props#'P_basic'.reply_to)
+  (State#state.on_message)(Payload, Props#'P_basic'.reply_to),
   {noreply, State}.
 
 terminate(_, _State) ->

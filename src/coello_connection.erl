@@ -57,9 +57,6 @@ configure_params([{channel_max, ChannelMax} | Options], Params) ->
 configure_params([{frame_max, FrameMax} | Options], Params) ->
   Result = setelement(#amqp_params_network.frame_max, Params, FrameMax),
   configure_params(Options, Result);
-configure_params([{frame_max, FrameMax} | Options], Params) ->
-  Result = setelement(#amqp_params_network.frame_max, Params, FrameMax),
-  configure_params(Options, Result);
 configure_params([{heartbeat, HeartBeat} | Options], Params) ->
   Result = setelement(#amqp_params_network.heartbeat, Params, HeartBeat),
   configure_params(Options, Result);
