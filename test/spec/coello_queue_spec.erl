@@ -18,7 +18,7 @@ spec() ->
         it("should create a exclusive, server named queue", fun()->
               meck:expect(amqp_channel, call, 2, #'queue.declare_ok'{ queue = <<"abc">>}),
 
-              Params = #'queue.declare'{exclusive = true},
+              Params = #'queue.declare'{exclusive = false},
               {ok, QueueName} = coello_queue:declare(channel),
 
               assert_that(meck:called(amqp_channel, call, [channel, Params]), is(true)),
@@ -30,7 +30,7 @@ spec() ->
               QueueName = <<"queuequeue">>,
               meck:expect(amqp_channel, call, 2, #'queue.declare_ok'{ queue = QueueName}),
 
-              Params = #'queue.declare'{exclusive = true, queue = QueueName },
+              Params = #'queue.declare'{exclusive = false, queue = QueueName },
               {ok, CreatedQueue} = coello_queue:declare(channel, QueueName),
 
               assert_that(meck:called(amqp_channel, call, [channel, Params]), is(true)),

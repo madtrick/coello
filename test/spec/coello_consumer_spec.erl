@@ -16,7 +16,7 @@ spec() ->
         Method  = #'basic.deliver'{},
         Message = {Method, AmqpMsg},
         Pid     = self(),
-        Consumer = coello_consumer:start(fun(_) -> Pid ! on_message end ),
+        Consumer = coello_consumer:start(fun(_, _) -> Pid ! on_message end ),
         Consumer ! Message,
 
         receive on_message -> ok end
@@ -26,7 +26,7 @@ spec() ->
         Method  = #'basic.deliver'{},
         Message = {Method, AmqpMsg},
         Pid     = self(),
-        Consumer = coello_consumer:start(fun(Msg) -> Pid ! {on_message, Msg} end ),
+        Consumer = coello_consumer:start(fun(Msg, _Replyto) -> Pid ! {on_message, Msg} end ),
         Consumer ! Message,
 
         assert_that(

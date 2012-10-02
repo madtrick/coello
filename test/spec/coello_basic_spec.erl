@@ -55,7 +55,7 @@ spec() ->
               QueueName = <<"queue">>,
               Method = #'basic.consume'{ queue = QueueName},
               Pid        = self(),
-              {ConsumerPid, _} = coello_basic:consume(channel, QueueName, fun(_) -> Pid ! on_message end),
+              {ConsumerPid, _} = coello_basic:consume(channel, QueueName, fun(_, _) -> Pid ! on_message end),
               ConsumerPid ! {#'basic.deliver'{}, #amqp_msg{}},
 
               assert_that(
