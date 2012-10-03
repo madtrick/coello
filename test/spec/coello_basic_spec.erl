@@ -6,6 +6,7 @@
 spec() ->
   before_all(fun() ->
         meck:new([amqp_channel]),
+        meck:expect(amqp_channel, cast, 2, ok),
         meck:expect(amqp_channel, cast, 3, ok)
     end),
   after_all(fun() ->
@@ -99,5 +100,23 @@ spec() ->
               assert_that(meck:called(coello_consumer, stop, [consumer]), is(true)),
 
               meck:unload(coello_consumer)
+          end)
+    end),
+  describe("ack", fun() ->
+        it("should ack a message", fun() ->
+              DeliveryTag = tag,
+              Multiple = 0,
+              Method = #'basic.ack'{delivery_tag = DeliveryTag, multiple = Multiple},
+              ok = coello_basic:ack(channel, DeliveryTag, Multiple),
+              assert_that(meck:called(amqp_channel, cast, [channel, Method]), is(true))
+          end)
+    end),
+  describe("reject", fun() ->
+        it("should reject a message", fun() ->
+              DeliveryTag = tag,
+              Requeue = true,
+              Method = #'basic.reject'{delivery_tag = DeliveryTag, requeue = Requeue},
+              ok = coello_basic:reject(channel, DeliveryTag, Requeue),
+              assert_that(meck:called(amqp_channel, cast, [channel, Method]), is(true))
           end)
     end).
