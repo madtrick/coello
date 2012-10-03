@@ -48,7 +48,7 @@ spec() ->
               assert_that(meck:called(amqp_channel, cast, [channel, Method, Msg]), is(true))
     end)
   end),
-  describe("consume", fun() ->
+  describe("consume/3", fun() ->
         it("should consume messages and invoke the passed in callback", fun()->
               meck:expect(amqp_channel, subscribe, 3, #'basic.consume_ok'{consumer_tag = 1234}),
 
@@ -66,6 +66,23 @@ spec() ->
                     false
                 end, is(true)),
               assert_that(meck:called(amqp_channel, subscribe, [channel, Method, ConsumerPid]), is(true))
+          end)
+    end),
+  describe("consume/4", fun() ->
+        describe("when option 'no_ack' is present", fun() ->
+              it("should set its value in the amqp method", fun() ->
+                    meck:new(coello_consumer),
+                    meck:expect(coello_consumer, start, 1, consumer),
+                    meck:expect(amqp_channel, subscribe, 3, #'basic.consume_ok'{consumer_tag = 1234}),
+
+                    Options = [{no_ack, true}],
+                    QueueName = <<"queue">>,
+                    Method = #'basic.consume'{ queue = QueueName, no_ack = true},
+                    coello_basic:consume(channel, QueueName, fun(_, _) -> ok end, Options),
+
+                    assert_that(meck:called(amqp_channel, subscribe, [channel, Method, '_']), is(true)),
+                    meck:unload(coello_consumer)
+                end)
           end)
     end),
   describe("cancel", fun() ->
